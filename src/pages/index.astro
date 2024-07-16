@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Ollama } from 'ollama'
+import ImageUpload from '../components/ImageUpload.tsx';
+
+---
+
+<Layout title="Welcome to Astro.">
+	<ImageUpload client:load/>
+</Layout>
