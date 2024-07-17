@@ -10,7 +10,7 @@ export default function RecipeMaker() {
     setRecipes("");
     const formData = new FormData(event.currentTarget);
     const ingredients = formData.get("ingredients") as string;
-    // const recipes = await getPossibleRecipes(ingredients);
+
     const resp = await fetch(`http://localhost:4321/get-sandos`, {
       method: "POST",
       body: JSON.stringify({ ingredients }),
@@ -22,6 +22,7 @@ export default function RecipeMaker() {
     })
     const reader = await resp.body?.getReader();
     const decoder = new TextDecoder();
+    // @ts-ignore
     reader?.read().then(async function processText({ done, value }) {
       if (done) {
         return;
@@ -31,8 +32,6 @@ export default function RecipeMaker() {
       setRecipes((prevRecipes) => prevRecipes + text);
       return reader?.read().then(processText);
     });
-    // console.log(list)
-    // setRecipes(recipes);
   }
 
   return (
