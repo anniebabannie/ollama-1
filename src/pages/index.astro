@@ -1,10 +1,13 @@
 ---
+import ImageUpload from '../components/ImageUpload';
+import RecipeMaker from '../components/RecipeMaker';
 import Layout from '../layouts/Layout.astro';
-import { Ollama } from 'ollama'
-import ImageUpload from '../components/ImageUpload.tsx';
-
+import { uploadFile } from '../utils/tigris';
 ---
 
-<Layout title="Welcome to Astro.">
-	<ImageUpload client:load/>
+<Layout title="Will It Sandwich?">
+   <div class="max-w-3xl mx-auto">
+      <h1 class="m-14 text-center">Will It Sandwich?</h1>
+      <RecipeMaker client:load/>
+   </div>
 </Layout>
