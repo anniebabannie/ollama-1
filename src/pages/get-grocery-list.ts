@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { Ollama } from "ollama";
-import { z } from "zod";
 
 async function getBase64Image(url:string) {
   const imgResp = await fetch(url);
@@ -11,7 +10,7 @@ async function getBase64Image(url:string) {
 
 const sampleSchema = [
   {
-    "recipe": "<The name of the recipe>",
+    "title": "<The name of the recipe>",
     "ingredients": ["<ingredient1>", "<ingredient2>", "<ingredient3>"],
     "instructions": ["step 1", "step 2", "step 3"]
   }

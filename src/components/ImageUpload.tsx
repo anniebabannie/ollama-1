@@ -2,14 +2,23 @@ import React, { useState } from 'react';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { z } from 'astro:content';
+import { set } from 'zod';
 
-const BUCKET_NAME = "ollama-1"
+const BUCKET_NAME = "ollama-1";
+const RecipeSchema = z.object({
+  title: z.string(),
+  ingredients: z.array(z.string()),
+  instructions: z.array(z.string()),
+});
+
+type Recipe = z.infer<typeof RecipeSchema>;
 
 function ImageUpload() {
   // Create state to store file
   const [file, setFile] = useState(null);
   const [image, setImage] = useState("");
-  const [recipes, setRecipes] = useState("");
+  const [recipe, setRecipe] = useState<Recipe>();
 
   const generateMealPlan = async (filename:string) => {
     const imgUrl = `https://fly.storage.tigris.dev/${BUCKET_NAME}/${filename}`;
@@ -21,18 +30,14 @@ function ImageUpload() {
       },
     })
 
-    const reader = await resp.body?.getReader();
-    const decoder = new TextDecoder();
-    // @ts-ignore
-    reader?.read().then(async function processText({ done, value }) {
-      if (done) {
-        return;
-      }
-      const text = decoder.decode(value);
-      console.log(text);
-      setRecipes((prevRecipes) => prevRecipes + text);
-      return reader?.read().then(processText);
-    });
+    const response = await resp.json();
+    try {
+      RecipeSchema.parse(JSON.parse(response));
+      setRecipe(JSON.parse(response) as Recipe);
+    } catch (e) {
+      console.log(e);
+      console.log(JSON.parse(response));
+    }
   }
 
   const uploadFile = async () => {
@@ -75,7 +80,23 @@ function ImageUpload() {
         <input type="file" onChange={handleFileChange} />
         <button onClick={uploadFile}>Upload</button>
         <img src={image} alt="" />
-        <Markdown remarkPlugins={[remarkGfm]}>{recipes}</Markdown>
+        {recipe && 
+        <div>
+          <h2>{recipe.title}</h2>
+          <h3>Ingredients:</h3>
+          <ul>
+            {recipe.ingredients.map((ingredient) => (
+              <li key={ingredient}>{ingredient}</li>
+            ))}
+          </ul>
+          <ol>
+            {recipe.instructions.map((instruction, i) => (
+              <li key={i}>{instruction}</li>
+            ))}
+          </ol>
+        </div>
+        }
+        {/* <Markdown remarkPlugins={[remarkGfm]}>{recipe}</Markdown> */}
       </div>
     </div>
   );
